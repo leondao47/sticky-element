@@ -1,0 +1,79 @@
+:root {
+  --sticky1-height: 100px;
+  --sticky2-height: 30px;
+  --sticky3-height: 80px;
+  --sticky4-height: 80px;
+}
+.body {
+  position: relative;
+}
+.placeholder {
+  height: 100px;
+}
+.sticky-1 {
+  height: var(--sticky1-height);
+  width: 100%;
+  background-color: rgb(216, 86, 86);
+  position: sticky;
+  top: 0px;
+  transition: top 0.3s;
+}
+.sticky-2 {
+  height: var(--sticky2-height);
+  background-color: rgb(133, 106, 240);
+  top: 0;
+  position: sticky;
+  top: calc(var(--sticky1-height));
+  transition: top 0.3s;
+  z-index: 1;
+}
+.sticky-3 {
+  height: var(--sticky3-height);
+  background-color: rgb(108, 222, 108);
+  position: sticky;
+  top: calc(var(--sticky1-height) + var(--sticky2-height));
+  transition: top 0.3s;
+}
+.sticky-4 {
+  height: var(--sticky4-height);
+  background-color: rgb(231, 75, 166);
+  position: sticky;
+  top: calc(
+    var(--sticky1-height) + var(--sticky2-height) + var(--sticky3-height)
+  );
+  transition: top 0.3s;
+  z-index: 1;
+}
+.space {
+  height: 1000px;
+}
+.navbar {
+  width: 100%;
+  height: 100px;
+  z-index: 1;
+  transition: top 0.3s;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+}
+
+.sticky-2.hidden {
+  top: 0px;
+}
+.sticky-4.hidden {
+  top: var(--sticky2-height);
+}
+
+/* Hide the navbar when the user scrolls down */
+.sticky-1.hidden {
+  top: calc(0px - var(--sticky1-height));
+}
+.sticky-3.hidden {
+  top: calc(0px - var(--sticky3-height));
+}
+
+.sticky-class {
+  display: none;
+}
