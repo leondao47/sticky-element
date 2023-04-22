@@ -1,65 +1,67 @@
-const template = document.createElement("template");
-template.innerHTML = `
-  <div><slot></slot></div>
+const stickyTemplate = document.createElement("template");
+stickyTemplate.innerHTML = `
+  <style>
+    #root {
+      position: sticky;
+      transition: top 0.3s;
+    }
+  </style>
+  <div id="root">
+    <slot></slot>
+  <div>
 `;
 
 class StickyItem extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: "open" });
-    shadow.append(template.content.cloneNode(true));
-    this.item = shadow.querySelector("div");
-    this.item.style.height = "100px";
-    const style = {
-      display: "block",
-      height: "100px",
-    };
-    Object.assign();
-  }
-
-  static get observedAttributes() {
-    return ["direction"];
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === "direction") {
-      if (newValue === "down") {
-      }
-    }
-  }
-
-  updateValue(value) {
-    this.checkbox.checked = value != null && value !== "false";
+    shadow.appendChild(stickyTemplate.content.cloneNode(true));
+    this.root = shadow.querySelector("#root");
   }
 }
 
 customElements.define("sticky-item", StickyItem);
 
-let prevScrollpos = window.pageYOffset;
-let iniPos;
-let isInitialized = false;
+const getAllStickyItems = () => {
+  return document.querySelectorAll("sticky-item");
+};
 
-window.onscroll = function () {
-  const sticky1 = document.querySelector(".sticky-1");
-  const sticky2 = document.querySelector(".sticky-2");
-  const sticky3 = document.querySelector(".sticky-3");
-  const sticky4 = document.querySelector(".sticky-4");
-  let currentScrollPos = window.pageYOffset;
+const getScrollDownStickyItems = () => {
+  return document.querySelectorAll(`sticky-item[direction="down"]`);
+};
+const getScrollUpStickyItems = () => {
+  return document.querySelectorAll(`sticky-item:not([direction="down"])`);
+};
 
-  if (prevScrollpos > currentScrollPos) {
-    // Show the navbar when the user scrolls up
-    sticky1.classList.remove("hidden");
-    sticky2.classList.remove("hidden");
-    sticky3.classList.remove("hidden");
-    sticky4.classList.remove("hidden");
-    console.log("scrolling up");
-  } else {
-    // Hide the navbar when the user scrolls down
-    console.log("scrolling down");
-    sticky1.classList.add("hidden");
-    sticky2.classList.add("hidden");
-    sticky3.classList.add("hidden");
-    sticky4.classList.add("hidden");
+const updateTopValue = (stickyItems) => {
+  const stickyItemsArray = Array.from(stickyItems);
+  for (key in stickyItemsArray) {
+    const previousItems = stickyItemsArray.slice(0, key);
+    const totalOffset = previousItems.reduce(
+      (offset, item) => offset + item.offsetHeight,
+      0
+    );
+    stickyItemsArray[key].root.style.top = `${totalOffset}px`;
   }
+};
+
+let prevScrollpos = window.pageYOffset;
+
+const handleScrollEvent = () => {
+  const stickyItems = getAllStickyItems();
+  let showingItems = stickyItems;
+  const scrollDownStickyItems = getScrollDownStickyItems();
+  const scrollUpStickyItems = getScrollUpStickyItems();
+  let currentScrollPos = window.pageYOffset;
+  const isScrollingDown = currentScrollPos > prevScrollpos;
+  if (isScrollingDown) {
+    scrollUpStickyItems.forEach((item) => {
+      item.root.style.top = `-${item.offsetHeight}px`;
+    });
+    showingItems = scrollDownStickyItems;
+  }
+  updateTopValue(showingItems);
   prevScrollpos = currentScrollPos;
 };
+
+window.addEventListener("scroll", handleScrollEvent);
