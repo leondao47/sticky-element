@@ -23,3 +23,24 @@
 .space {
   height: 1000px;
 }
+.side-container {
+  display: flex;
+  padding: 50px;
+}
+.side-bar {
+  flex: 2;
+  height: 300px;
+  background-color: purple;
+  margin-right: 50px;
+  position: sticky;
+  top: 10px;
+  transition: top 0.3s;
+}
+.colored-space {
+  flex: 3;
+  height: 1000px;
+  background-color: aqua;
+}
+.add-top {
+  top: 1000px;
+}

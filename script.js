@@ -18,6 +18,8 @@ class StickyItem extends HTMLElement {
     shadow.appendChild(stickyTemplate.content.cloneNode(true));
     this.root = shadow.querySelector("#root");
   }
+
+  static showingItems;
 }
 
 customElements.define("sticky-item", StickyItem);
@@ -33,23 +35,34 @@ const getScrollUpStickyItems = () => {
   return document.querySelectorAll(`sticky-item:not([direction="down"])`);
 };
 
+const getOtherStickyElements = () => {
+  let otherStickyElements = document.querySelectorAll("div");
+  otherStickyElements = Array.from(otherStickyElements);
+  otherStickyElements = otherStickyElements.filter(
+    (item) => getComputedStyle(item).position === "sticky"
+  );
+  return otherStickyElements;
+};
+
+const getTotalOffset = (items) => {
+  items = Array.from(items);
+  return items.reduce((offset, item) => offset + item.offsetHeight, 0);
+};
+
 const updateTopValue = (stickyItems) => {
   const stickyItemsArray = Array.from(stickyItems);
   for (key in stickyItemsArray) {
     const previousItems = stickyItemsArray.slice(0, key);
-    const totalOffset = previousItems.reduce(
-      (offset, item) => offset + item.offsetHeight,
-      0
-    );
+    const totalOffset = getTotalOffset(previousItems);
     stickyItemsArray[key].root.style.top = `${totalOffset}px`;
   }
 };
 
 let prevScrollpos = window.pageYOffset;
 
-const handleScrollEvent = () => {
+const handleStickyItemElements = () => {
   const stickyItems = getAllStickyItems();
-  let showingItems = stickyItems;
+  StickyItem.showingItems = stickyItems;
   const scrollDownStickyItems = getScrollDownStickyItems();
   const scrollUpStickyItems = getScrollUpStickyItems();
   let currentScrollPos = window.pageYOffset;
@@ -58,10 +71,19 @@ const handleScrollEvent = () => {
     scrollUpStickyItems.forEach((item) => {
       item.root.style.top = `-${item.offsetHeight}px`;
     });
-    showingItems = scrollDownStickyItems;
+    StickyItem.showingItems = scrollDownStickyItems;
   }
-  updateTopValue(showingItems);
+  updateTopValue(StickyItem.showingItems);
   prevScrollpos = currentScrollPos;
 };
 
-window.addEventListener("scroll", handleScrollEvent);
+const handleOtherStickyElements = () => {
+  const otherStickyElements = getOtherStickyElements();
+  for (element of otherStickyElements) {
+    const offset = `${10 + getTotalOffset(StickyItem.showingItems)}px`;
+    element.style.top = offset;
+  }
+};
+
+window.addEventListener("scroll", handleStickyItemElements);
+window.addEventListener("scroll", handleOtherStickyElements);
